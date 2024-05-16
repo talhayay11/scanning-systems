@@ -20,7 +20,7 @@ def apply_fourier_transform(image):
     return reconstructed_image, magnitude_spectrum
 
 def visualize_results(image, original, radon_reconstructed, radon_sinogram, fourier_reconstructed, fourier_spectrum):
-    fig, axes = plt.subplots(2, 3, figsize=(18, 12))
+    fig, axes = plt.subplots(3, 2, figsize=(12, 18))
 
     axes[0, 0].set_title("Orijinal Görüntü")
     axes[0, 0].imshow(image, cmap=plt.cm.Greys_r)
@@ -32,24 +32,24 @@ def visualize_results(image, original, radon_reconstructed, radon_sinogram, four
     axes[0, 1].axis('off')
 
     # Radon dönüşümü (sinogram)
-    axes[0, 2].set_title("Radon Dönüşümü\n(Sinogram)")
-    axes[0, 2].imshow(radon_sinogram, cmap=plt.cm.Greys_r, extent=(0, 180, 0, radon_sinogram.shape[0]), aspect='auto')
-    axes[0, 2].axis('off')
-
-    # Radon ile geri dönüştürülmüş görüntü
-    axes[1, 0].set_title("Radon ile Geri Dönüşüm")
-    axes[1, 0].imshow(radon_reconstructed, cmap=plt.cm.Greys_r)
+    axes[1, 0].set_title("\n\n\n\nRadon Dönüşümü\n(Sinogram)")
+    axes[1, 0].imshow(radon_sinogram, cmap=plt.cm.Greys_r, extent=(0, 180, 0, radon_sinogram.shape[0]), aspect='auto')
     axes[1, 0].axis('off')
 
-    # Fourier dönüşümünün büyüklük spektrumu
-    axes[1, 1].set_title("Fourier Dönüşümü\n(Büyüklük Spektrumu)")
-    axes[1, 1].imshow(fourier_spectrum, cmap=plt.cm.Greys_r)
+    # Radon ile geri dönüştürülmüş görüntü
+    axes[1, 1].set_title("\nRadon ile Geri Dönüşüm")
+    axes[1, 1].imshow(radon_reconstructed, cmap=plt.cm.Greys_r)
     axes[1, 1].axis('off')
 
+    # Fourier dönüşümünün büyüklük spektrumu
+    axes[2, 0].set_title("\n\n\n\nFourier Dönüşümü\n(Büyüklük Spektrumu)")
+    axes[2, 0].imshow(fourier_spectrum, cmap=plt.cm.Greys_r)
+    axes[2, 0].axis('off')
+
     # Fourier ile geri dönüştürülmüş görüntü
-    axes[1, 2].set_title("Fourier ile Geri Dönüşüm")
-    axes[1, 2].imshow(fourier_reconstructed, cmap=plt.cm.Greys_r)
-    axes[1, 2].axis('off')
+    axes[2, 1].set_title("\nFourier ile Geri Dönüşüm")
+    axes[2, 1].imshow(fourier_reconstructed, cmap=plt.cm.Greys_r)
+    axes[2, 1].axis('off')
 
     plt.tight_layout()
     plt.show()
