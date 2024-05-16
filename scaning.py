@@ -1,40 +1,73 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from skimage.transform import radon, iradon
+from skimage.transform import radon, iradon, iradon_sart
 from skimage.io import imread
 from skimage.color import rgb2gray
+from numpy.fft import fft2, ifft2, fftshift, ifftshift
 
-# Görüntüyü yükle
-image_path = 'indir.jpeg'  # Buraya görüntü dosyanızın yolunu yazın
-image = imread(image_path)
+def apply_radon_transform(image):
+    theta = np.linspace(0., 180., max(image.shape), endpoint=False)
+    sinogram = radon(image, theta=theta)
+    reconstructed_image = iradon(sinogram, theta=theta, filter_name='ramp', circle=False)
+    return reconstructed_image, sinogram
 
-# Görüntüyü gri tonlamalıya dönüştür (Radon dönüşümü için gereklidir)
-image_gray = rgb2gray(image)
+def apply_fourier_transform(image):
+    f_transform = fft2(image)
+    f_transform_shifted = fftshift(f_transform)
+    magnitude_spectrum = 20*np.log(np.abs(f_transform_shifted))
+    f_ishift = ifftshift(f_transform_shifted)
+    reconstructed_image = np.abs(ifft2(f_ishift))
+    return reconstructed_image, magnitude_spectrum
 
-# Görüntüye Radon dönüşümü uygula
-theta = np.linspace(0., 180., max(image_gray.shape), endpoint=False)
-sinogram = radon(image_gray, theta=theta)
+def visualize_results(image, original, radon_reconstructed, radon_sinogram, fourier_reconstructed, fourier_spectrum):
+    fig, axes = plt.subplots(2, 3, figsize=(18, 12))
 
-# Radon dönüşümünden geri dönüşüm (inverse Radon dönüşümü) yaparak orijinal görüntüyü elde et
-reconstructed_image = iradon(sinogram, theta=theta, filter_name='ramp')
+    axes[0, 0].set_title("Orijinal Görüntü")
+    axes[0, 0].imshow(image, cmap=plt.cm.Greys_r)
+    axes[0, 0].axis('off')
 
-# Orijinal görüntüyü, Radon dönüşümünü (sinogram) ve geri dönüştürülmüş görüntüyü görselleştir
-fig, (ax1, ax2, ax3, ax4) = plt.subplots(1, 4, figsize=(18, 8))
+    # Orijinal görüntü
+    axes[0, 1].set_title("Gray Görüntü")
+    axes[0, 1].imshow(original, cmap=plt.cm.Greys_r)
+    axes[0, 1].axis('off')
 
-ax1.set_title("Orijinal Görüntü")
-ax1.imshow(image , cmap=plt.cm.Greys_r)
+    # Radon dönüşümü (sinogram)
+    axes[0, 2].set_title("Radon Dönüşümü\n(Sinogram)")
+    axes[0, 2].imshow(radon_sinogram, cmap=plt.cm.Greys_r, extent=(0, 180, 0, radon_sinogram.shape[0]), aspect='auto')
+    axes[0, 2].axis('off')
 
-ax2.set_title("Griye dönüştürülmüş Görüntü")
-ax2.imshow(image_gray, cmap=plt.cm.Greys_r)
+    # Radon ile geri dönüştürülmüş görüntü
+    axes[1, 0].set_title("Radon ile Geri Dönüşüm")
+    axes[1, 0].imshow(radon_reconstructed, cmap=plt.cm.Greys_r)
+    axes[1, 0].axis('off')
 
-ax3.set_title("Radon Dönüşümü\n(Sinogram)")
-ax3.set_xlabel("Projeksiyon açısı (derece)")
-ax3.set_ylabel("Radyal koordinat (piksel)")
-ax3.imshow(sinogram, cmap=plt.cm.Greys_r,
-           extent=(0, 180, 0, sinogram.shape[0]), aspect='auto')
+    # Fourier dönüşümünün büyüklük spektrumu
+    axes[1, 1].set_title("Fourier Dönüşümü\n(Büyüklük Spektrumu)")
+    axes[1, 1].imshow(fourier_spectrum, cmap=plt.cm.Greys_r)
+    axes[1, 1].axis('off')
 
-ax4.set_title("Geri Dönüştürülmüş Görüntü")
-ax4.imshow(reconstructed_image, cmap=plt.cm.Greys_r)
+    # Fourier ile geri dönüştürülmüş görüntü
+    axes[1, 2].set_title("Fourier ile Geri Dönüşüm")
+    axes[1, 2].imshow(fourier_reconstructed, cmap=plt.cm.Greys_r)
+    axes[1, 2].axis('off')
 
-plt.tight_layout()
-plt.show()
+    plt.tight_layout()
+    plt.show()
+
+def main():
+    # Görüntüyü yükle
+    image_path = 'indir.jpeg'  # Gerçek dosya yolunu belirtin
+    image = imread(image_path)
+    image_gray = rgb2gray(image)
+
+    # Radon dönüşümü ve geri dönüşüm
+    radon_reconstructed, radon_sinogram = apply_radon_transform(image_gray)
+
+    # Fourier dönüşümü ve geri dönüşüm
+    fourier_reconstructed, fourier_spectrum = apply_fourier_transform(image_gray)
+
+    # Sonuçları görselleştir
+    visualize_results(image, image_gray, radon_reconstructed, radon_sinogram, fourier_reconstructed, fourier_spectrum)
+
+if __name__ == "__main__":
+    main()
