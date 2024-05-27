@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from skimage.transform import radon, iradon, iradon_sart
+from skimage.transform import radon, iradon
 from skimage.io import imread
 from skimage.color import rgb2gray
 from numpy.fft import fft2, ifft2, fftshift, ifftshift
@@ -32,7 +32,7 @@ def visualize_results(image, original, radon_reconstructed, radon_sinogram, four
     axes[0, 1].axis('off')
 
     # Radon dönüşümü (sinogram)
-    axes[1, 0].set_title("\n\n\n\nRadon Dönüşümü\n(Sinogram)")
+    axes[1, 0].set_title("\n\n\n\nRadon Dönüşümü")
     axes[1, 0].imshow(radon_sinogram, cmap=plt.cm.Greys_r, extent=(0, 180, 0, radon_sinogram.shape[0]), aspect='auto')
     axes[1, 0].axis('off')
 
@@ -42,7 +42,7 @@ def visualize_results(image, original, radon_reconstructed, radon_sinogram, four
     axes[1, 1].axis('off')
 
     # Fourier dönüşümünün büyüklük spektrumu
-    axes[2, 0].set_title("\n\n\n\nFourier Dönüşümü\n(Büyüklük Spektrumu)")
+    axes[2, 0].set_title("\n\n\n\nFourier Dönüşümü")
     axes[2, 0].imshow(fourier_spectrum, cmap=plt.cm.Greys_r)
     axes[2, 0].axis('off')
 
